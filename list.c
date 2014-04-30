@@ -34,6 +34,29 @@ static WINDOW *list = NULL;
 
 
 static void
+extend_index()
+{
+    struct index_elem* cur;
+    int total = 0, size = COLS;
+    float fact, nlen;
+
+    for(cur = index_elements; cur; cur = cur->next) {
+        if(cur->type == INDEX_TEXT)
+            size -= strlen(cur->d.text);
+        else
+            total += cur->d.field.len;
+    }
+
+    fact = (float)size / (float)total;
+    for(cur = index_elements; cur; cur = cur->next) {
+        if(cur->type != INDEX_TEXT) {
+            nlen = (float)cur->d.field.len * fact;
+            cur->d.field.len = (int)nlen;
+        }
+    }
+}
+
+static void
 index_elem_add(int type, char *a, char *b)
 {
 	struct index_elem *tmp = NULL, *cur, *cur2;
@@ -82,7 +105,7 @@ index_elem_add(int type, char *a, char *b)
 }
 
 static void
-parse_index_format(char *s)
+parse_index_format(char *s, bool extend)
 {
 	char *p, *start, *lstart = NULL;
 	int in_field = 0, in_alternate = 0, in_length = 0, type;
@@ -117,13 +140,16 @@ parse_index_format(char *s)
 	}
 	if(!in_field)
 		index_elem_add(INDEX_TEXT, start, NULL);
+
+    if(extend == TRUE)
+        extend_index();
 }
 
 void
 init_index()
 {
 	assert(!index_elements);
-	parse_index_format(opt_get_str(STR_INDEX_FORMAT));
+	parse_index_format(opt_get_str(STR_INDEX_FORMAT), opt_get_bool(BOOL_EXTEND_INDEX));
 }
 
 void
