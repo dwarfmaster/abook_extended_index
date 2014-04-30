@@ -51,6 +51,7 @@ static struct option abook_vars[] = {
 
 	{ "show_all_emails", OT_BOOL, BOOL_SHOW_ALL_EMAILS, TRUE },
 	{ "index_format", OT_STR, STR_INDEX_FORMAT, UL " {name:22} {email:40} {phone:12|workphone|mobile}" },
+    { "extend_index", OT_BOOL, BOOL_EXTEND_INDEX, FALSE},
 	{ "mutt_command", OT_STR, STR_MUTT_COMMAND, UL "mutt" },
 	{ "mutt_return_all_emails", OT_BOOL, BOOL_MUTT_RETURN_ALL_EMAILS,
 		TRUE },
