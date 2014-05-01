@@ -163,13 +163,15 @@ static void
 print_list_field(int item, int line, int *x_pos, struct index_elem *e)
 {
 	char *s, *p;
-	int width, x_start, mustfree = FALSE, len = abs(e->d.field.len);
+	int width, x_start, mustfree = FALSE, len = abs(e->d.field.len), x, y;
 	struct list_field f;
 
 	get_list_field(item, e, &f);
 	s = f.data;
 
 	if(!s || !*s) {
+        for(x = 0; x < len; ++x)
+            waddch(list, ' ');
 		*x_pos += len;
 		return;
 	}
@@ -188,6 +190,14 @@ print_list_field(int item, int line, int *x_pos, struct index_elem *e)
 	if(width)
 		mvwaddnstr(list, line, x_start, s, width);
 
+    if(len) {
+        getyx(list, y, x);
+        while(x < *x_pos + len) {
+            waddch(list, ' ');
+            getyx(list,y,x);
+        }
+    }
+
 	if(mustfree)
 		free(s);
 		
@@ -201,27 +211,6 @@ highlight_line(WINDOW *win, int line)
 	if(!opt_get_bool(BOOL_USE_COLORS)) {
 		wstandout(win);
 	}
-
-	/*
-	 * this is a tricky one
-	 */
-#if 0
-/*#ifdef mvwchgat*/
-	mvwchgat(win, line, 0, -1,  A_STANDOUT, 0, NULL);
-#else
-	/*
-	 * buggy function: FIXME
-	 */
-	scrollok(win, FALSE);
-	{
-		int i;
-		wmove(win, line, 0);
-		for(i = 0; i < COLS; i++)
-			waddch(win, ' ');
-	/*wattrset(win, 0);*/
-	}
-	scrollok(win, TRUE);
-#endif
 }
 
 static void
@@ -240,6 +229,8 @@ print_list_line(int item, int line, int highlight)
 
 	if(selected[item])
 		mvwaddch(list, line, 0, '*' );
+    else
+        mvwaddch(list, line, 0, ' ');
 
 	for(cur = index_elements; cur; cur = cur->next)
 		switch(cur->type) {
@@ -253,6 +244,8 @@ print_list_line(int item, int line, int highlight)
 			default:
 				assert(0);
 		}
+    for(; x_pos < COLS; ++x_pos)
+        waddch(list, ' ');
 
 	scrollok(list, TRUE);
 	if(highlight)
