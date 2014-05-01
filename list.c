@@ -195,6 +195,8 @@ print_list_field(int item, int line, int *x_pos, struct index_elem *e)
         while(x < *x_pos + len) {
             waddch(list, ' ');
             getyx(list,y,x);
+            if(x == 0)
+                break;
         }
     }
 
