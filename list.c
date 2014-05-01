@@ -163,7 +163,7 @@ static void
 print_list_field(int item, int line, int *x_pos, struct index_elem *e)
 {
 	char *s, *p;
-	int width, x_start, mustfree = FALSE, len = abs(e->d.field.len), x, y;
+	int width, x_start, mustfree = FALSE, len = abs(e->d.field.len), x;
 	struct list_field f;
 
 	get_list_field(item, e, &f);
@@ -191,13 +191,9 @@ print_list_field(int item, int line, int *x_pos, struct index_elem *e)
 		mvwaddnstr(list, line, x_start, s, width);
 
     if(len) {
-        getyx(list, y, x);
-        while(x < *x_pos + len) {
+        int m = len - strwidth(s);
+        for(x = 0; x < m; ++x)
             waddch(list, ' ');
-            getyx(list,y,x);
-            if(x == 0)
-                break;
-        }
     }
 
 	if(mustfree)
