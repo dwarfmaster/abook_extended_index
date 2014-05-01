@@ -10,7 +10,11 @@ enum {
 
 int		is_ui_initialized();
 void		ui_init_curses();
+void        ui_init_colors_values();
 void		ui_init_color_pairs_user();
+void        ui_close_colors();
+int         ui_parse_color(const char* value, short* r, short* g, short* b);
+int         ui_char_value(char c);
 void		ui_enable_mouse(bool enabled);
 int		init_ui();
 void		close_ui();

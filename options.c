@@ -91,6 +91,14 @@ static struct option abook_vars[] = {
 	{ "color_field_name_bg", OT_STR, STR_COLOR_FIELD_NAME_BG, UL "default" },
 	{ "color_field_value_fg", OT_STR, STR_COLOR_FIELD_VALUE_FG, UL "green" },
 	{ "color_field_value_bg", OT_STR, STR_COLOR_FIELD_VALUE_BG, UL "default" },
+    { "color_black",   OT_STR, STR_COLOR_BLACK,   UL "default" },
+    { "color_red",     OT_STR, STR_COLOR_RED,     UL "default" },
+    { "color_green",   OT_STR, STR_COLOR_GREEN,   UL "default" },
+    { "color_yellow",  OT_STR, STR_COLOR_YELLOW,  UL "default" },
+    { "color_blue",    OT_STR, STR_COLOR_BLUE,    UL "default" },
+    { "color_magenta", OT_STR, STR_COLOR_MAGENTA, UL "default" },
+    { "color_cyan",    OT_STR, STR_COLOR_CYAN,    UL "default" },
+    { "color_white",   OT_STR, STR_COLOR_WHITE,   UL "default" },
 	{ NULL }
 };
 
