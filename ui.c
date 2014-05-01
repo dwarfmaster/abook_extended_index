@@ -106,6 +106,12 @@ resize_abook()
 #endif /* TIOCGWINSZ */
 }
 
+void
+ui_close_colors()
+{
+    use_default_colors();
+}
+
 
 static void
 win_changed(int i)
@@ -141,7 +147,7 @@ ui_init_curses()
 	keypad(stdscr, TRUE);
 	if(opt_get_bool(BOOL_USE_COLORS) && has_colors()) {
 		start_color();
-		use_default_colors();
+        ui_init_colors_values();
 		ui_init_color_pairs_user();
 	}
 }
@@ -222,6 +228,68 @@ ui_init_color_pairs_user()
 }
 
 int
+ui_char_value(char c)
+{
+    if(c >= '0' && c <= '9')
+        return c - '0';
+    else if(c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+    else if(c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    else
+        return 0;
+}
+
+int
+ui_parse_color(const char* value, short* r, short* g, short* b)
+{
+    /* value must be of format RRGGBB */
+    if(value == NULL
+            || strlen(value) != 6)
+        return 0;
+
+    /* Any invalid character will be considered to be 0. */
+    *r = ui_char_value(value[0]) * 16 + ui_char_value(value[1]);
+    *r = (double)*r * 1000.0/255.0;
+    *g = ui_char_value(value[2]) * 16 + ui_char_value(value[3]);
+    *g = (double)*g * 1000.0/255.0;
+    *b = ui_char_value(value[4]) * 16 + ui_char_value(value[5]);
+    *b = (double)*b * 1000.0/255.0;
+#ifdef DEBUG
+    fprintf(stderr, "\"%s\" parsed to (%i;%i;%i)\n", value, *r, *g, *b);
+#endif
+    return 1;
+}
+
+void
+ui_init_colors_values()
+{
+    use_default_colors();
+    if(can_change_color() == FALSE) {
+        fprintf(stderr, _("Your terminal doesn't support color changing.\n"));
+        return;
+    }
+
+    short r, g, b;
+    if(ui_parse_color(opt_get_str(STR_COLOR_BLACK), &r, &g, &b))
+        init_color(COLOR_BLACK, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_RED), &r, &g, &b))
+        init_color(COLOR_RED, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_GREEN), &r, &g, &b))
+        init_color(COLOR_GREEN, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_YELLOW), &r, &g, &b))
+        init_color(COLOR_YELLOW, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_BLUE), &r, &g, &b))
+        init_color(COLOR_BLUE, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_MAGENTA), &r, &g, &b))
+        init_color(COLOR_MAGENTA, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_CYAN), &r, &g, &b))
+        init_color(COLOR_CYAN, r, g, b);
+    if(ui_parse_color(opt_get_str(STR_COLOR_WHITE), &r, &g, &b))
+        init_color(COLOR_WHITE, r, g, b);
+}
+
+int
 init_ui()
 {
 	ui_init_curses();
@@ -254,6 +322,7 @@ void
 close_ui()
 {
 	close_list();
+    ui_close_colors();
 	free_windows();
 	clear();
 	refresh();
