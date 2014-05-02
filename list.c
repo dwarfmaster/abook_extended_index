@@ -36,6 +36,9 @@ static WINDOW *list = NULL;
 static void
 extend_index()
 {
+    if(!index_elements)
+        return;
+
     struct index_elem* cur;
     int total = 0, size = COLS;
     float fact, nlen;
@@ -158,6 +161,8 @@ init_list()
 	list = newwin(LIST_LINES, LIST_COLS, LIST_TOP, 0);
 	scrollok(list, TRUE);
 	scroll_speed = abs(opt_get_int(INT_SCROLL_SPEED));
+    if(opt_get_bool(BOOL_EXTEND_INDEX))
+        extend_index();
 }
 
 void
