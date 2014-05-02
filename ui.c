@@ -54,6 +54,17 @@ static bool should_resize = FALSE;
 static bool can_resize = FALSE;
 static struct timeval last_click_time;
 static int double_click_interval = 200; /* maximum time in milliseconds */
+static short default_colors[24]; /* to restore the default colors when closing */
+static short list_colors[] = {
+    COLOR_BLACK,
+    COLOR_RED,
+    COLOR_GREEN,
+    COLOR_YELLOW,
+    COLOR_BLUE,
+    COLOR_MAGENTA,
+    COLOR_CYAN,
+    COLOR_WHITE,
+};
 
 static WINDOW *top = NULL, *bottom = NULL;
 
@@ -104,12 +115,6 @@ resize_abook()
 	refresh_screen();
 	refresh();
 #endif /* TIOCGWINSZ */
-}
-
-void
-ui_close_colors()
-{
-    use_default_colors();
 }
 
 
@@ -261,10 +266,40 @@ ui_parse_color(const char* value, short* r, short* g, short* b)
     return 1;
 }
 
+static void
+store_colors()
+{
+    short i, r, g, b;
+    for(i = 0; i < 8; ++i) {
+        color_content(list_colors[i], &r, &g, &b);
+        default_colors[3*i]     = r;
+        default_colors[3*i + 1] = g;
+        default_colors[3*i + 2] = b;
+    }
+}
+
+static void
+restore_colors()
+{
+    int i;
+    for(i = 0; i < 8; ++i) {
+        init_color(list_colors[i], default_colors[3*i],
+                default_colors[3*i + 1], default_colors[3*i + 2]);
+    }
+}
+
+void
+ui_close_colors()
+{
+    use_default_colors();
+    restore_colors();
+}
+
 void
 ui_init_colors_values()
 {
     use_default_colors();
+    store_colors();
     if(can_change_color() == FALSE) {
         fprintf(stderr, _("Your terminal doesn't support color changing.\n"));
         return;
@@ -322,11 +357,11 @@ void
 close_ui()
 {
 	close_list();
-    ui_close_colors();
 	free_windows();
 	clear();
 	refresh();
 	endwin();
+    ui_close_colors();
 
 	ui_initialized = FALSE;
 }
