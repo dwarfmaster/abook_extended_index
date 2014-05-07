@@ -32,6 +32,46 @@ struct index_elem *index_elements = NULL;
 
 static WINDOW *list = NULL;
 
+static void
+extend_index()
+{
+    if(!index_elements)
+        return;
+
+    struct index_elem* cur;
+    int total = 0, size = LIST_COLS, needed = 0;
+    float fact, nlen;
+
+    for(cur = index_elements; cur; cur = cur->next) {
+        if(cur->type == INDEX_TEXT)
+            size -= strwidth(cur->d.text);
+        else if(!cur->d.field.extend)
+            size -= cur->d.field.cfglen;
+        else {
+            total += cur->d.field.cfglen;
+            needed = 1;
+        }
+    }
+
+    if(needed == 0)
+        return;
+
+    if(total > size) {
+        for(cur = index_elements; cur; cur = cur->next) {
+            if(cur->type != INDEX_TEXT)
+                cur->d.field.len = cur->d.field.cfglen;
+        }
+        return;
+    }
+
+    fact = (float)size / (float)total;
+    for(cur = index_elements; cur; cur = cur->next) {
+        if(cur->type != INDEX_TEXT && cur->d.field.extend) {
+            nlen = (float)cur->d.field.cfglen * fact;
+            cur->d.field.len = (int)nlen;
+        }
+    }
+}
 
 static void
 index_elem_add(int type, char *a, char *b, bool extend)
@@ -127,6 +167,8 @@ parse_index_format(char *s)
 	}
 	if(!in_field)
 		index_elem_add(INDEX_TEXT, start, NULL, FALSE);
+
+    extend_index();
 }
 
 void
