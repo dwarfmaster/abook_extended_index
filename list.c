@@ -34,7 +34,7 @@ static WINDOW *list = NULL;
 
 
 static void
-index_elem_add(int type, char *a, char *b)
+index_elem_add(int type, char *a, char *b, bool extend)
 {
 	struct index_elem *tmp = NULL, *cur, *cur2;
 	int field, len = 0;
@@ -56,6 +56,8 @@ index_elem_add(int type, char *a, char *b)
 			tmp = xmalloc(sizeof(struct index_elem));
 			tmp->d.field.id = field;
 			tmp->d.field.len = len;
+            tmp->d.field.cfglen = len;
+            tmp->d.field.extend = extend;
 			break;
 		default:
 			assert(0);
@@ -75,6 +77,7 @@ index_elem_add(int type, char *a, char *b)
 		cur->next = tmp;
 	else { /* add as an alternate field */
 		tmp->d.field.len = cur->d.field.len;
+        tmp->d.field.cfglen = cur->d.field.cfglen;
 		for(cur2 = cur; cur2->d.field.next; cur2 = cur2->d.field.next)
 			;
 		cur2->d.field.next = tmp;
@@ -86,37 +89,44 @@ parse_index_format(char *s)
 {
 	char *p, *start, *lstart = NULL;
 	int in_field = 0, in_alternate = 0, in_length = 0, type;
+    bool extend = FALSE;
 
 	p = start = s;
 
 	while(*p) {
 		if(*p == '{' && !in_field) {
 			*p = 0;
-			index_elem_add(INDEX_TEXT, start, NULL);
+			index_elem_add(INDEX_TEXT, start, NULL, FALSE);
 			start = ++p;
 			in_field = 1;
 		} else if(*p == ':' && in_field && !in_alternate) {
 			*p = 0;
 			lstart = ++p;
 			in_length = 1;
-		} else if(*p == '|' && in_field) {
+		} else if(*p == '+' && in_field && !in_alternate && in_length) {
+            extend = TRUE;
+            *p = 0;
+            p++;
+        } else if(*p == '|' && in_field) {
 			*p = 0;
 			type = in_alternate ? INDEX_ALT_FIELD : INDEX_FIELD;
-			index_elem_add(type, start, in_length ? lstart : NULL);
+			index_elem_add(type, start, in_length ? lstart : NULL, extend);
 			start = ++p;
 			in_length = 0;
 			in_alternate = 1;
+            extend = FALSE;
 		} else if(*p == '}' && in_field) {
 			*p = 0;
 			type = in_alternate ? INDEX_ALT_FIELD : INDEX_FIELD;
-			index_elem_add(type, start, in_length ? lstart : NULL);
+			index_elem_add(type, start, in_length ? lstart : NULL, extend);
 			start = ++p;
 			in_field = in_alternate = in_length = 0;
+            extend = FALSE;
 		} else
 			p++;
 	}
 	if(!in_field)
-		index_elem_add(INDEX_TEXT, start, NULL);
+		index_elem_add(INDEX_TEXT, start, NULL, FALSE);
 }
 
 void
