@@ -14,6 +14,8 @@ struct index_elem {
 		struct {
 			int id;
 			int len;
+            int cfglen;
+            bool extend;
 			struct index_elem *next;
 		} field;
 	} d;
