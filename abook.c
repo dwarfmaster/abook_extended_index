@@ -138,10 +138,10 @@ init_abook()
 
 	signal(SIGTERM, quit_abook_sig);
 
-	init_index();
-
 	if(init_ui())
 		exit(EXIT_FAILURE);
+
+	init_index();
 
 	umask(DEFAULT_UMASK);
 
