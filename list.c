@@ -39,21 +39,26 @@ extend_index()
         return;
 
     struct index_elem* cur;
-    int total = 0, size = LIST_COLS, needed = 0;
+    int total = 0, size = LIST_COLS, needed = 0, possible = 1;
     float fact, nlen;
 
     for(cur = index_elements; cur; cur = cur->next) {
         if(cur->type == INDEX_TEXT)
             size -= strwidth(cur->d.text);
-        else if(!cur->d.field.extend)
+        else if(!cur->d.field.extend) {
             size -= cur->d.field.cfglen;
+            if(!cur->d.field.cfglen)
+                possible = 0;
+        }
         else {
+            if(!cur->d.field.cfglen)
+                possible = 0;
             total += cur->d.field.cfglen;
             needed = 1;
         }
     }
 
-    if(needed == 0)
+    if(!possible || !needed)
         return;
 
     if(total > size) {
