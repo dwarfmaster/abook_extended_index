@@ -167,8 +167,6 @@ parse_index_format(char *s)
 	}
 	if(!in_field)
 		index_elem_add(INDEX_TEXT, start, NULL, FALSE);
-
-    extend_index();
 }
 
 void
@@ -184,6 +182,7 @@ init_list()
 	list = newwin(LIST_LINES, LIST_COLS, LIST_TOP, 0);
 	scrollok(list, TRUE);
 	scroll_speed = abs(opt_get_int(INT_SCROLL_SPEED));
+    extend_index();
 }
 
 void
