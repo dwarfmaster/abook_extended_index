@@ -586,6 +586,8 @@ get_commands()
 			case KEY_UP: scroll_up();	break;
 			case 'j':
 			case KEY_DOWN: scroll_down();	break;
+            case KEY_LEFT: scroll_left();   break;
+            case KEY_RIGHT: scroll_right(); break;
 			case 'K':
 			case KEY_PPAGE: page_up();	break;
 			case 'J':
