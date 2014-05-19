@@ -309,7 +309,7 @@ void
 list_headerline()
 {
 	struct index_elem *e;
-	int x_pos = 1, width;
+	int x_pos = 1, width, i;
 	char *str = NULL;
 
 #if defined(A_BOLD) && defined(A_NORMAL)
@@ -318,7 +318,11 @@ list_headerline()
 	attrset(COLOR_PAIR(CP_LIST_HEADER));
 	mvhline(2, 0, ' ', COLS);
 
-	for(e = index_elements; e; e = e->next)
+    e = index_elements;
+    for(i = 0; i < first_printed_item && e; ++i)
+        e = e->next;
+
+	for(; e; e = e->next)
 		if(e->type == INDEX_TEXT)
 			x_pos += strwidth(e->d.text);
 		else if(e->type == INDEX_FIELD) {
@@ -363,7 +367,7 @@ void
 scroll_right()
 {
     ++first_printed_item;
-    refresh_list();
+    refresh_screen();
 }
 
 void
@@ -372,7 +376,7 @@ scroll_left()
     --first_printed_item;
     if(first_printed_item < 0)
         first_printed_item = 0;
-    refresh_list();
+    refresh_screen();
 }
 
 void
