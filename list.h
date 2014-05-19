@@ -36,6 +36,8 @@ void            scroll_up();
 void            scroll_down();
 void            scroll_list_up();
 void            scroll_list_down();
+void            scroll_left();
+void            scroll_right();
 void		page_up();
 void		page_down();
 void            select_none();

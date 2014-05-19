@@ -31,6 +31,7 @@ extern abook_field_list *fields_list;
 struct index_elem *index_elements = NULL;
 
 static WINDOW *list = NULL;
+static int first_printed_item = 0;
 
 
 static void
@@ -228,7 +229,7 @@ static void
 print_list_line(int item, int line, int highlight)
 {
 	struct index_elem *cur;
-	int x_pos = 1;
+	int x_pos = 1, i;
 
 	if(item % 2 == 0)
 		wattrset(list, COLOR_PAIR(CP_LIST_EVEN));
@@ -241,7 +242,11 @@ print_list_line(int item, int line, int highlight)
 	if(selected[item])
 		mvwaddch(list, line, 0, '*' );
 
-	for(cur = index_elements; cur; cur = cur->next)
+    cur = index_elements;
+    for(i = 0; i < first_printed_item && cur; ++i)
+        cur = cur->next;
+
+	for(; cur; cur = cur->next)
 		switch(cur->type) {
 			case INDEX_TEXT:
 				mvwaddstr(list, line, x_pos, cur->d.text);
@@ -352,6 +357,22 @@ scroll_down()
 	curitem++;
 
 	refresh_list();
+}
+
+void
+scroll_right()
+{
+    ++first_printed_item;
+    refresh_list();
+}
+
+void
+scroll_left()
+{
+    --first_printed_item;
+    if(first_printed_item < 0)
+        first_printed_item = 0;
+    refresh_list();
 }
 
 void
